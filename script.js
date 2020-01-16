@@ -1,16 +1,21 @@
-var canvasWidth = 900;
-var canvasHeight = 600;
-var blockSize = 30;
-var delay = 75;
-var context;
-var snake;
-var apple;
-var appleColor = "#3c3";
-var snakeColor = "#f00";
-var canvasWidthInBlocks = canvasWidth/blockSize;
-var canvasHeightInBlocks = canvasHeight/blockSize;
+
 
 window.onload = function (){
+
+    var canvasWidth = 900;
+    var canvasHeight = 600;
+    var blockSize = 30;
+    var delay = 75;
+    var timeout;
+    var context;
+    var snake;
+    var apple;
+    var appleColor = "#f00";
+    var snakeColor = "#3c3";
+    var canvasWidthInBlocks = canvasWidth/blockSize;
+    var canvasHeightInBlocks = canvasHeight/blockSize;
+    var score;
+    var scoreTag;
 
     init();
 
@@ -19,11 +24,19 @@ window.onload = function (){
         canvas = document.createElement('canvas');
         canvas.width = canvasWidth;
         canvas.height = canvasHeight;
-        canvas.style.border = "1px solid";
+        canvas.style.border = "15px solid #333333";
+        canvas.style.backgroundColor = "#ddd" 
         this.document.body.appendChild(canvas);
+        scoreText = this.document.createElement('p');
+        scoreText.innerHTML = "Score : ";
+        scoreText.id = "scoreText";
+        this.document.body.appendChild(scoreText)
+        scoreTag = document.getElementById('scoreText');
         context = canvas.getContext('2d');
         snake = new Snake([[6,4],[5,4],[4,4],[3,4],[2,4],[1,4]]);
         apple = new Apple([10,10]);
+        score = 0;
+        updateScore();
         refreshCanvas();
     }
 
@@ -36,16 +49,22 @@ window.onload = function (){
             gameOver();
         }else{
 
-            if(this.snake.isEatingApple(apple.position)){
-                this.apple.setNewPosition();
-                this.snake.ateApple = true;
+            if(snake.isEatingApple(apple.position)){
+                apple.setNewPosition();
+                score += 50;
+                snake.ateApple = true;
+                updateScore();
             }
             context.clearRect(0,0,canvas.width,canvas.height);
             apple.draw();
             snake.draw();
-            setTimeout(refreshCanvas,delay);
+            timeout = setTimeout(refreshCanvas,delay);
         }
         
+    }
+
+    function updateScore(){
+        scoreTag.innerHTML = 'Score : '+score;
     }
 
     function drawBlock(context, position){
@@ -56,14 +75,18 @@ window.onload = function (){
 
     function gameOver(){
         context.save();
-        context.fillText("Game Over", (canvasWidth/2)-40,canvasHeight/2);
-        context.fillText("Appuyer sur la touche espace pour recommencer la partie.", (canvasWidth/2)-80,(canvasHeight/2)+20);
+        context.font = "bold 24px sans-serif";
+        context.fillText("Game Over", (canvasWidth/2.25)-40,canvasHeight/2);
+        context.fillText("Appuyer sur la touche espace pour recommencer la partie.", (canvasWidth/6.50),(canvasHeight/2)+20);
         context.restore();
     }
     
     function restart(){
             snake = new Snake([[6,4],[5,4],[4,4],[3,4],[2,4],[1,4]]);
             apple = new Apple([10,10]);
+            score = 0;
+            updateScore();
+            clearTimeout(timeout);
             refreshCanvas();
     }
 
@@ -176,11 +199,8 @@ window.onload = function (){
         
 
     }
-    
-}
 
-
-function Apple(position){
+    function Apple(position){
     this.position = position;
     this.draw = function (){
         context.save();
@@ -217,12 +237,7 @@ function Apple(position){
         }
         
     }
-
-    
 }
-
-
-
 document.onkeydown = function handleKeyDown(e){
     var key = e.keyCode;
     var newDirection;
@@ -246,3 +261,10 @@ document.onkeydown = function handleKeyDown(e){
     }
     snake.setDirection(newDirection);
 }
+}
+
+
+
+
+
+
